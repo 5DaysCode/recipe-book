@@ -18,9 +18,8 @@ export class RecipeService {
   }
 
   getRecipeById(id: number): Recipe | undefined {
-    return mockRecipes.find((recipe) => recipe.id === id);
+    return this._recipes.value.find((recipe) => recipe.id === id);
   }
-
   // Add a new recipe
   addRecipe(recipe: Recipe): void {
     const newId = Math.max(...this._recipes.value.map((r) => r.id)) + 1;
