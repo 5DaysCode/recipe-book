@@ -5,4 +5,15 @@
       <p class="recipe-card__description">{{ recipe.description }}</p>
     </div>
   </div>
+
+  <div *ngIf="(recipes$ | async)?.length === 0" class="no-recipes-message">
+    No recipes found
+  </div>
+
+  <div class="error-message-container" *ngIf="(recipes$ | async) === null">
+    <ng-template #error>
+      <div class="error-message">Error: Failed to fetch recipes</div>
+    </ng-template>
+    <ng-container *ngTemplateOutlet="error"></ng-container>
+  </div>
 </ng-container>

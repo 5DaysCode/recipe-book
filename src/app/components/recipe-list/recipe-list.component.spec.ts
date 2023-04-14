@@ -1,8 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { RecipeListComponent } from './recipe-list.component';
 import { RecipeService } from '../../services/recipe.service';
 import { Recipe } from '../../interfaces/recipe.interface';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
+import { DebugElement } from '@angular/core';
+import { By } from '@angular/platform-browser';
 
 // 1. Create a mock recipe list
 const mockRecipes: Recipe[] = [
@@ -44,6 +51,7 @@ describe('RecipeListComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipeListComponent);
     component = fixture.componentInstance;
+    component.recipes$ = of([]);
     fixture.detectChanges();
   });
 
@@ -51,5 +59,47 @@ describe('RecipeListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  // Add more tests here as needed
+  it('should show a message when there are no recipes', () => {
+    component.recipes$ = of([]);
+    fixture.detectChanges();
+
+    const messageElement = fixture.nativeElement.querySelector(
+      '.no-recipes-message'
+    );
+    expect(messageElement).toBeTruthy();
+    expect(messageElement.textContent).toContain('No recipes found');
+  });
+
+  it('should display the correct number of recipes', () => {
+    const recipeElements =
+      fixture.nativeElement.querySelectorAll('div.recipe-card');
+    expect(recipeElements.length).toEqual(mockRecipes.length);
+  });
+
+  it('should handle errors while fetching recipes', () => {
+    const error = new Error('Failed to fetch recipes');
+
+    const recipeServiceSpy = jest.spyOn(
+      TestBed.inject(RecipeService),
+      'getRecipes'
+    );
+    recipeServiceSpy.mockReturnValue(throwError(error) as Observable<never>);
+
+    // Assign the error observable to component.recipes$
+    component.recipes$ = throwError(error) as Observable<never>;
+
+    fixture.detectChanges();
+
+    const errorDebugElement = fixture.debugElement.query(
+      By.css('.error-message-container')
+    );
+    expect(errorDebugElement).toBeTruthy();
+
+    const errorTemplate =
+      errorDebugElement.nativeElement.querySelector('.error-message');
+    expect(errorTemplate).toBeTruthy();
+    expect(errorTemplate.textContent).toContain(
+      'Error: Failed to fetch recipes'
+    );
+  });
 });
