@@ -1,0 +1,8 @@
+<ng-container *ngIf="recipes$">
+  <div class="recipe-list">
+    <div *ngFor="let recipe of recipes$ | async" class="recipe-card">
+      <h3 class="recipe-card__title">{{ recipe.title }}</h3>
+      <p class="recipe-card__description">{{ recipe.description }}</p>
+    </div>
+  </div>
+</ng-container>
